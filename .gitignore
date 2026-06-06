@@ -1,0 +1,17 @@
+# Dependencias
+node_modules/
+
+# Secretos / llaves — NUNCA subir
+.env
+.env.local
+
+# Datos del cliente (costos, proveedores, márgenes) — privado
+client-data/
+
+# Video de demostración (no versionar)
+*.mp4
+
+# Logs y temporales
+*.log
+*.output
+npm-debug.log*

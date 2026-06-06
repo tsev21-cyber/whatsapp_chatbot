@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pizzería Giomar · Chatbot IA para WhatsApp</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">🍕 Pizzería Giomar — <span>Chatbot IA · Demo</span></div>
+      <button id="reset" class="reset-btn">Reiniciar pedido</button>
+    </header>
+
+    <main class="stage">
+      <!-- IZQUIERDA: Teléfono con WhatsApp -->
+      <section class="phone">
+        <div class="phone-notch"></div>
+        <div class="wa">
+          <div class="wa-header">
+            <div class="wa-back">‹</div>
+            <div class="wa-avatar">G</div>
+            <div class="wa-meta">
+              <div class="wa-name">Pizzería Giomar</div>
+              <div class="wa-status" id="wa-status">en línea</div>
+            </div>
+            <div class="wa-icons">📞 ⋮</div>
+          </div>
+
+          <div class="wa-chat" id="chat">
+            <div class="wa-day">HOY</div>
+          </div>
+
+          <div class="wa-input">
+            <div class="wa-textbox">
+              <span class="wa-emoji">😊</span>
+              <input
+                id="msg"
+                type="text"
+                placeholder="Escribe un mensaje"
+                autocomplete="off"
+              />
+              <span class="wa-clip">📎</span>
+            </div>
+            <button id="send" class="wa-send" aria-label="Enviar">➤</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- DERECHA: Sistema interno -->
+      <section class="system">
+        <div class="sys-card">
+          <div class="sys-head">
+            <div class="sys-dot"></div>
+            <div>
+              <div class="sys-title">Sistema interno · Pizzería Giomar</div>
+              <div class="sys-sub">Pedidos sincronizados en tiempo real vía API</div>
+            </div>
+          </div>
+
+          <div class="sys-body">
+            <div class="sys-row">
+              <span class="sys-label">Estado del pedido</span>
+              <span class="badge" id="estado">Esperando…</span>
+            </div>
+            <div class="sys-row">
+              <span class="sys-label">Tipo de entrega</span>
+              <span class="sys-value" id="tipoEntrega">—</span>
+            </div>
+
+            <div class="sys-items-head">Productos detectados</div>
+            <div class="sys-items" id="items">
+              <div class="sys-empty">Aún no hay productos en el pedido.</div>
+            </div>
+
+            <div class="sys-total-box">
+              <div class="sys-total-row">
+                <span>Envío</span><span id="envio">—</span>
+              </div>
+              <div class="sys-total-row total">
+                <span>Total</span><span id="total">—</span>
+              </div>
+            </div>
+
+            <div class="sys-missing" id="faltante"></div>
+
+            <pre class="sys-json" id="json">// El JSON estructurado del pedido aparecerá aquí
+// (esto es lo que se envía a tu sistema / Google Sheets)</pre>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div class="scenes">
+      <span class="sug-label">🎬 Escenas para el video:</span>
+      <button class="scene-btn active" data-scene="1">
+        Escena 1 · Pedido a domicilio
+      </button>
+      <button class="scene-btn" data-scene="2">
+        Escena 2 · Varios productos · para recoger
+      </button>
+      <span class="scene-hint">Haz clic en los pasos en orden ↓</span>
+    </div>
+    <div class="suggestions" id="suggestions"></div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
