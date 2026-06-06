@@ -181,8 +181,11 @@ export async function procesarPedido(messages) {
   const faltante = data.faltante || [];
   const estado = data.order?.estado;
 
-  // Red de seguridad: si el modelo devuelve un "reply" vacío, generamos uno coherente.
-  let reply = (data.reply || "").trim();
+  // Normaliza saltos de línea sobre-escapados (algunos modelos devuelven "\n" literal).
+  let reply = (data.reply || "")
+    .replace(/\\r\\n|\\n|\\r/g, "\n")
+    .replace(/\\t/g, " ")
+    .trim();
   if (!reply) {
     if (estado === "confirmado") {
       reply =
