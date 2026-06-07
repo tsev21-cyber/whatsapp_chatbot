@@ -131,8 +131,10 @@ body {
   opacity: 0.85;
 }
 .wa-icons {
-  font-size: 14px;
-  opacity: 0.9;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  opacity: 0.95;
 }
 
 .wa-chat {
@@ -256,8 +258,9 @@ body {
 }
 .wa-emoji,
 .wa-clip {
-  opacity: 0.5;
-  font-size: 16px;
+  display: flex;
+  align-items: center;
+  color: #8696a0;
 }
 .wa-send {
   width: 44px;
