@@ -127,6 +127,21 @@ async function getAnthropic() {
   return _anthropic;
 }
 
+// Parseo robusto: tolera fences ```json, texto extra antes/después, etc.
+function parsearJSON(raw) {
+  if (!raw || !raw.trim()) throw new Error("El modelo devolvió una respuesta vacía");
+  let t = raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+  try {
+    return JSON.parse(t);
+  } catch {
+    // Intenta extraer el primer objeto JSON { ... } dentro del texto.
+    const a = t.indexOf("{");
+    const b = t.lastIndexOf("}");
+    if (a !== -1 && b > a) return JSON.parse(t.slice(a, b + 1));
+    throw new Error("El modelo no devolvió un JSON válido");
+  }
+}
+
 // Llama al proveedor y devuelve el JSON crudo { reply, order, faltante }.
 async function llamarIA(messages) {
   if (PROVIDER === "groq") {
@@ -139,9 +154,9 @@ async function llamarIA(messages) {
       ],
       response_format: { type: "json_object" },
       temperature: 0.3,
-      max_tokens: 1500,
+      max_tokens: 2000,
     });
-    return JSON.parse(completion.choices[0].message.content);
+    return parsearJSON(completion.choices?.[0]?.message?.content);
   }
 
   // Anthropic (Claude) con structured outputs.
@@ -157,7 +172,7 @@ async function llamarIA(messages) {
     messages,
   });
   const textBlock = response.content.find((b) => b.type === "text");
-  return JSON.parse(textBlock.text);
+  return parsearJSON(textBlock?.text);
 }
 
 /**
