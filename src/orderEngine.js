@@ -211,10 +211,14 @@ export async function procesarPedido(messages) {
     estado = "construyendo"; // el cliente NO canceló: mantenemos la conversación abierta
   }
 
-  // Normaliza saltos de línea sobre-escapados (algunos modelos devuelven "\n" literal).
+  // Limpieza robusta del texto que vera el cliente (evita caracteres raros).
   let reply = (data.reply || "")
-    .replace(/\\r\\n|\\n|\\r/g, "\n")
-    .replace(/\\t/g, " ")
+    .replace(/\\r\\n|\\n|\\r/g, "\n") // saltos SOBRE-escapados ("\n" literal) -> salto real
+    .replace(/\\t/g, " ") // tabs sobre-escapados -> espacio
+    .replace(/\r\n?/g, "\n") // CR / CRLF reales -> salto simple
+    .replace(/[\u0000-\u0009\u000B-\u001F\u007F]/g, "") // caracteres de control sueltos -> fuera
+    .replace(/[ \t]{2,}/g, " ") // espacios repetidos -> uno
+    .replace(/\n{3,}/g, "\n\n") // saltos excesivos -> maximo doble
     .trim();
   if (!reply) {
     if (estado === "confirmado") {
