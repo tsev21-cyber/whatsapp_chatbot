@@ -28,6 +28,8 @@ REGLAS DE CONVERSACIÓN:
 - Capta la intención desde el PRIMER mensaje: si el cliente ya dicta un pedido completo, regístralo todo de una vez.
 - Interpreta tamaños, sabores, "mitad y mitad" (dos sabores en una pizza), extras (orilla rellena, extra de queso), cantidades, correcciones ("cámbiame X por Y", "quita...") y observaciones ("sin cebolla").
 - Usa SOLO productos del menú. Si piden algo que no existe, ofrece amablemente lo más parecido.
+- PRODUCTOS FUERA DEL MENÚ (ej. sushi, tacos, ramen): NUNCA canceles ni bloquees el pedido por esto. Discúlpate breve, aclara que no lo manejas, sugiere lo más parecido del menú (o invita a ver el menú) y CONTINÚA atendiendo con normalidad. El estado SIGUE "construyendo" y el pedido acumulado se conserva. Que el cliente pida algo inexistente NO es motivo para cancelar.
+- estado "cancelado" SÓLO cuando el cliente diga EXPLÍCITAMENTE que quiere cancelar todo (ej. "cancela todo", "ya no quiero nada", "olvídalo todo"). En cualquier otro caso el estado NUNCA es "cancelado".
 - Si falta info para completar un producto (ej. tamaño de la pizza), pregunta de forma corta y natural.
 - Para pizza mitad y mitad, el precio es el del sabor MÁS CARO de ese tamaño.
 - Flujo: saludar → armar el pedido → preguntar si es a domicilio o para recoger (y la dirección/zona si es domicilio) → mostrar resumen con total → confirmar. Al confirmar el cliente, estado "confirmado".
@@ -194,7 +196,20 @@ export async function procesarPedido(messages) {
   total = +total.toFixed(2);
 
   const faltante = data.faltante || [];
-  const estado = data.order?.estado;
+
+  // Red de seguridad anti-congelamiento: el modelo a veces marca "cancelado" por error
+  // (p. ej. cuando el cliente pide algo fuera del menú como sushi). Solo respetamos la
+  // cancelación si el cliente la pidió EXPLÍCITAMENTE; si no, el pedido sigue vivo y atendible.
+  const ultimoUsuario =
+    [...messages].reverse().find((m) => m.role === "user")?.content || "";
+  const pidioCancelar =
+    /\b(cancel\w*|olv[ií]d\w*|an[uú]l\w*|ya no quiero (nada|el pedido)|d[eé]jalo as[ií]|mejor nada)\b/i.test(
+      ultimoUsuario,
+    );
+  let estado = data.order?.estado;
+  if (estado === "cancelado" && !pidioCancelar) {
+    estado = "construyendo"; // el cliente NO canceló: mantenemos la conversación abierta
+  }
 
   // Normaliza saltos de línea sobre-escapados (algunos modelos devuelven "\n" literal).
   let reply = (data.reply || "")
@@ -220,6 +235,7 @@ export async function procesarPedido(messages) {
     order: {
       ...data.order,
       items,
+      estado, // estado ya saneado (sin cancelaciones espurias)
       envio: 0, // el envío lo confirma el operador según la zona
       total,
     },
